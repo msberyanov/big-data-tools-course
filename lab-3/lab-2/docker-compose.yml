@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    container_name: namenode
+    hostname: namenode
+    ports:
+      - "9870:9870"  # Web UI Hadoop (NameNode)
+      - "9000:9000"  # HDFS RPC endpoint (fs.defaultFS = hdfs://namenode:9000)
+    environment:
+      - CLUSTER_NAME=test
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+    volumes:
+      - ./hadoop-namenode:/hadoop-data
+    networks:
+      - hadoop
+
+  datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: datanode
+    hostname: datanode
+    depends_on:
+      - namenode
+    environment:
+      - SERVICE_NAME=datanode
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+    volumes:
+      - ./hadoop-datanode:/hadoop-data
+    networks:
+      - hadoop
+
+  spark-master:
+    image: bde2020/spark-master:3.1.2-hadoop3.2
+    container_name: spark-master
+    ports:
+      - "8080:8080"  # MasterWebUI
+      - "7077:7077"  # Spark worker communication
+      - "4040:4040" # SparkUI
+    environment:
+      - SPARK_MASTER_HOST=spark-master
+      - SPARK_MASTER_PORT=7077
+      - SPARK_PUBLIC_DNS=localhost  # можно поменять, если нужен внешний доступ
+      - HADOOP_CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+    volumes:
+      - ./spark-data:/opt/spark/work  # рабочая директория для Spark
+    depends_on:
+      - namenode
+    networks:
+      - hadoop
+
+  spark-worker:
+    image: bde2020/spark-worker:3.1.2-hadoop3.2
+    container_name: spark-worker
+    ports:
+      - "8081:8081"  # WorkerUI
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_MASTER=spark://spark-master:7077
+      - SPARK_WORKER_CORES=1
+      - SPARK_WORKER_MEMORY=1g
+    volumes:
+      - ./spark-data:/opt/spark/work
+    networks:
+      - hadoop
+
+networks:
+  hadoop:
+    driver: bridge
