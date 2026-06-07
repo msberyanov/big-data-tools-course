@@ -1,0 +1,79 @@
+$ docker exec -it flink-jobmanager ./bin/flink run -c KafkaFlinkStreamingApp /opt/flink/lab-5.jar
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by org.apache.flink.api.java.ClosureCleaner (file:/opt/flink/lib/flink-dist-1.17.1.jar) to field java.lang.String.value
+WARNING: Please consider reporting this to the maintainers of org.apache.flink.api.java.ClosureCleaner
+WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+Job has been submitted with JobID 5a33d8027156e521c95d44894fb7aa25
+
+------------------------------------------------------------
+ The program finished with the following exception:
+
+org.apache.flink.client.program.ProgramInvocationException: The main method caused an error: org.apache.flink.client.program.ProgramInvocationException: Job failed (JobID: 5a33d8027156e521c95d44894fb7aa25)
+        at org.apache.flink.client.program.PackagedProgram.callMainMethod(PackagedProgram.java:372)
+        at org.apache.flink.client.program.PackagedProgram.invokeInteractiveModeForExecution(PackagedProgram.java:222)
+        at org.apache.flink.client.ClientUtils.executeProgram(ClientUtils.java:105)
+        at org.apache.flink.client.cli.CliFrontend.executeProgram(CliFrontend.java:851)
+        at org.apache.flink.client.cli.CliFrontend.run(CliFrontend.java:245)
+        at org.apache.flink.client.cli.CliFrontend.parseAndRun(CliFrontend.java:1095)
+        at org.apache.flink.client.cli.CliFrontend.lambda$mainInternal$9(CliFrontend.java:1189)
+        at org.apache.flink.runtime.security.contexts.NoOpSecurityContext.runSecured(NoOpSecurityContext.java:28)
+        at org.apache.flink.client.cli.CliFrontend.mainInternal(CliFrontend.java:1189)
+        at org.apache.flink.client.cli.CliFrontend.main(CliFrontend.java:1157)
+Caused by: java.util.concurrent.ExecutionException: org.apache.flink.client.program.ProgramInvocationException: Job failed (JobID: 5a33d8027156e521c95d44894fb7aa25)
+        at java.base/java.util.concurrent.CompletableFuture.reportGet(Unknown Source)
+        at java.base/java.util.concurrent.CompletableFuture.get(Unknown Source)
+        at org.apache.flink.client.program.StreamContextEnvironment.getJobExecutionResult(StreamContextEnvironment.java:171)
+        at org.apache.flink.client.program.StreamContextEnvironment.execute(StreamContextEnvironment.java:122)
+        at org.apache.flink.streaming.api.environment.StreamExecutionEnvironment.execute(StreamExecutionEnvironment.java:2058)
+        at org.apache.flink.streaming.api.scala.StreamExecutionEnvironment.execute(StreamExecutionEnvironment.scala:870)
+        at KafkaFlinkStreamingApp$.main(KafkaFlinkStreamingApp.scala:31)
+        at KafkaFlinkStreamingApp.main(KafkaFlinkStreamingApp.scala)
+        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+        at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+        at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+        at org.apache.flink.client.program.PackagedProgram.callMainMethod(PackagedProgram.java:355)
+        ... 9 more
+Caused by: org.apache.flink.client.program.ProgramInvocationException: Job failed (JobID: 5a33d8027156e521c95d44894fb7aa25)
+        at org.apache.flink.client.deployment.ClusterClientJobClientAdapter.lambda$null$6(ClusterClientJobClientAdapter.java:130)
+        at java.base/java.util.concurrent.CompletableFuture$UniApply.tryFire(Unknown Source)
+        at java.base/java.util.concurrent.CompletableFuture.postComplete(Unknown Source)
+        at java.base/java.util.concurrent.CompletableFuture.complete(Unknown Source)
+        at org.apache.flink.util.concurrent.FutureUtils.lambda$retryOperationWithDelay$6(FutureUtils.java:302)
+        at java.base/java.util.concurrent.CompletableFuture.uniWhenComplete(Unknown Source)
+        at java.base/java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(Unknown Source)
+        at java.base/java.util.concurrent.CompletableFuture.postComplete(Unknown Source)
+        at java.base/java.util.concurrent.CompletableFuture.complete(Unknown Source)
+        at org.apache.flink.client.program.rest.RestClusterClient.lambda$pollResourceAsync$32(RestClusterClient.java:787)
+        at java.base/java.util.concurrent.CompletableFuture.uniWhenComplete(Unknown Source)
+        at java.base/java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(Unknown Source)
+        at java.base/java.util.concurrent.CompletableFuture.postComplete(Unknown Source)
+        at java.base/java.util.concurrent.CompletableFuture.complete(Unknown Source)
+        at org.apache.flink.util.concurrent.FutureUtils.lambda$retryOperationWithDelay$6(FutureUtils.java:302)
+        at java.base/java.util.concurrent.CompletableFuture.uniWhenComplete(Unknown Source)
+        at java.base/java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(Unknown Source)
+        at java.base/java.util.concurrent.CompletableFuture.postComplete(Unknown Source)
+        at java.base/java.util.concurrent.CompletableFuture.postFire(Unknown Source)
+        at java.base/java.util.concurrent.CompletableFuture$UniCompose.tryFire(Unknown Source)
+        at java.base/java.util.concurrent.CompletableFuture$Completion.run(Unknown Source)
+        at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+        at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+        at java.base/java.lang.Thread.run(Unknown Source)
+Caused by: org.apache.flink.runtime.client.JobCancellationException: Job was cancelled.
+        at org.apache.flink.runtime.jobmaster.JobResult.toJobExecutionResult(JobResult.java:146)
+        at org.apache.flink.client.deployment.ClusterClientJobClientAdapter.lambda$null$6(ClusterClientJobClientAdapter.java:128)
+        ... 23 more
+
+What's next:
+    Try Docker Debug for seamless, persistent debugging tools in any container or image → docker debug flink-jobmanager
+    Learn more at https://docs.docker.com/go/debug-cli/
+
+$ docker logs flink-taskmanager-1 | grep "Processing:"
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by org.jboss.netty.util.internal.ByteBufferUtil (file:/tmp/flink-rpc-akka_5e0e4099-2551-4e1c-a38f-5145a60d6710.jar) to method java.nio.DirectByteBuffer.cleaner()
+WARNING: Please consider reporting this to the maintainers of org.jboss.netty.util.internal.ByteBufferUtil
+WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+Processing: test message 1
+Processing: test message 2
