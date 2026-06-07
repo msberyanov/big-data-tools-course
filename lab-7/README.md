@@ -1,179 +1,128 @@
-# Лабораторная работа 7: Интеграция Airflow, Spark и Kafka
+# Отчёт по лабораторной работе 7.
 
-## Описание
+---
 
-В данной лабораторной работе реализована пайплайн обработки данных с использованием следующих технологий:
-- **Apache Airflow** - оркестрация пайплайнов
-- **Apache Spark** - распределенная обработка данных
-- **Apache Kafka** - потоковая передача данных
-- **Hadoop HDFS** - распределенное хранилище данных
+## Задание.
 
-## Структура проекта
+**Цель**: Реализовать ETL-пайплайн с использованием Apache Airflow для оркестрации, Apache Kafka для потоковой передачи данных и Apache Spark для обработки данных, с хранением в HDFS.
 
+### Компоненты решения
+
+#### 1. Оркестрация через Apache Airflow.
+
+Airflow управляет пайплайном через DAG [`spark_kafka_pipeline.py`](./dags/spark_kafka_pipeline.py), который содержит следующие задачи:
+- `check_hdfs_input` — ожидание появления входных данных в HDFS.
+- `load_from_kafka` — загрузка данных из Kafka в HDFS.
+- `process_with_spark` — обработка данных с помощью Spark.
+- `check_hdfs_output` — проверка наличия выходных данных в HDFS.
+
+Конфигурация подключения:
+- `hdfs_default` — подключение к HDFS (namenode:8020).
+- `spark_default` — подключение к Spark (spark-master:7077).
+- `kafka_broker` — подключение к Kafka (kafka:9092).
+
+#### 2. Загрузка данных из Kafka.
+
+Скрипт [`kafka_loader.py`](./scripts/kafka_loader.py) подключается к Kafka-топику `input_topic` и сохраняет данные в HDFS:
+
+```python
+from kafka import KafkaConsumer
+import hdfs
+
+def load_data():
+    consumer = KafkaConsumer(
+        'input_topic',
+        bootstrap_servers='kafka-broker:9092',
+        auto_offset_reset='earliest'
+    )
+    
+    client = hdfs.InsecureClient("http://namenode:50070")
+    
+    with client.write('/data/input/raw_data.csv') as writer:
+        for message in consumer:
+            writer.write(message.value + b'\n')
+
+if __name__ == "__main__":
+    load_data()
 ```
-lab-7/
-├── docker-compose.yml          # Конфигурация Docker Compose
-├── scripts/                    # Скрипты обработки данных
-│   ├── spark_processor.py      # Spark-скрипт для обработки данных
-│   └── kafka_loader.py         # Скрипт для загрузки данных из Kafka в HDFS
-├── dags/                       # DAG-файлы Airflow
-│   └── spark_kafka_pipeline.py # Основной DAG для пайплайна
-├── config/                     # Конфигурационные файлы
-│   └── pipeline.cfg            # Конфигурация пайплайна
-├── scripts.sh                  # Скрипт для запуска всего проекта
-└── README.md                   # Документация
+
+#### 3. Обработка данных через Spark.
+
+Скрипт [`spark_processor.py`](./scripts/spark_processor.py) читает сырые данные из HDFS, фильтрует их и агрегирует:
+
+```python
+from pyspark.sql import SparkSession
+
+def process_data():
+    spark = SparkSession.builder \
+        .appName("AirflowSparkProcessor") \
+        .getOrCreate()
+    
+    # Чтение данных из HDFS
+    df = spark.read.csv("hdfs://namenode:8020/data/input/raw_data.csv", header=True)
+    
+    # Пример обработки: фильтрация значений > 100 по группам category
+    processed_df = df.filter(df["value"] > 100).groupBy("category").count()
+    
+    # Сохранение результатов в Parquet
+    processed_df.write.parquet("hdfs://namenode:8020/data/output/processed_data.parquet")
+    
+    spark.stop()
+
+if __name__ == "__main__":
+    process_data()
 ```
 
-## Технологический стек
+#### 4. Конфигурация
 
-### Apache Airflow
-- Оркестрация задач пайплайна
-- Планирование и мониторинг
-- Web UI для управления пайплайнами
+Файл [`pipeline.cfg`](./config/pipeline.cfg) содержит параметры подключения:
 
-### Apache Spark
-- Распределенная обработка больших данных
-- Spark SQL для анализа данных
-- Интеграция с HDFS
+```ini
+[kafka]
+bootstrap_servers = kafka:9092
+topic = input_topic
 
-### Apache Kafka
-- Потоковая передача данных в реальном времени
-- Темы для публикации/подписки
-- Связь между источниками данных и обработчиками
+[hdfs]
+namenode = hdfs://namenode:8020
+input_path = /data/input/raw_data.csv
+output_path = /data/output/processed_data.parquet
+```
 
-### Hadoop HDFS
-- Распределенное хранилище данных
-- Высокая доступность и отказоустойчивость
+### Запуск пайплайна
 
-## Запуск проекта
-
-### Вариант 1: Использование скрипта запуска
+Для автоматизации всех операций используется скрипт [`scripts.sh`](./scripts.sh):
 
 ```bash
-chmod +x scripts.sh
-./scripts.sh
+#!/bin/bash
+
+# Копирование скриптов в контейнер Airflow.
+docker cp scripts/kafka_loader.py airflow-webserver:/opt/airflow/scripts
+docker cp scripts/spark_processor.py airflow-webserver:/opt/airflow/scripts
+docker cp dags/spark_kafka_pipeline.py airflow-webserver:/opt/airflow/dags
+docker cp config/pipeline.cfg airflow-webserver:/opt/airflow/config
+
+# Триггер запуска DAG.
+docker exec -it airflow-webserver airflow dags trigger spark_kafka_pipeline
+
+# Логи.
+docker logs airflow-webserver
+docker logs airflow-scheduler
 ```
 
-### Вариант 2: Ручной запуск
+После успешного выполнения пайплайна в HDFS создаются:
+- Входные данные: `/data/input/raw_data.csv`
+- Выходные данные: `/data/output/processed_data.parquet`
 
-```bash
-# 1. Запуск контейнеров
-docker-compose up -d
+Пример результатов обработки:
 
-# 2. Ожидание инициализации (30-60 секунд)
-sleep 60
-
-# 3. Включение DAG в Airflow
-docker exec airflow-airflow-webserver-1 airflow dags unpause spark_kafka_pipeline
-
-# 4. Проверка статуса
-docker-compose ps
+```
++--------+-----+
+|category|count|
++--------+-----+
+|       A|  150|
+|       B|  230|
+|       C|   95|
++--------+-----+
 ```
 
-## Доступные сервисы
-
-| Сервис | URL | Логин | Пароль |
-|--------|-----|-------|--------|
-| Airflow WebUI | http://localhost:8080 | admin | admin |
-| Spark Master UI | http://localhost:4040 | - | - |
-| Hadoop NameNode | http://localhost:50070 | - | - |
-| Kafka (внешний) | localhost:9092 | - | - |
-| Kafka (внутренний) | kafka:9093 | - | - |
-
-## Описание пайплайна
-
-### DAG: spark_kafka_pipeline
-
-1. **generate_test_data** - Генерация тестовых данных
-2. **copy_to_hdfs** - Копирование данных в HDFS
-3. **process_with_spark** - Обработка данных с помощью Spark
-4. **check_output** - Проверка результатов обработки
-5. **send_notification** - Уведомление об успешном завершении
-
-## Скрипты
-
-### spark_processor.py
-
-Spark-приложение, которое:
-- Читает данные из HDFS (CSV)
-- Фильтрует данные (value > 100)
-- Группирует по категории и считает количество
-- Сохраняет результат в формате Parquet
-
-### kafka_loader.py
-
-Скрипт для загрузки данных из Kafka в HDFS:
-- Подписывается на Kafka-тему
-- Считывает сообщения
-- Записывает в HDFS в формате CSV
-
-## Переменные окружения
-
-### spark_processor.py
-- `INPUT_PATH` - путь к входным данным в HDFS (по умолчанию: hdfs://hadoop:8020/data/input/raw_data.csv)
-- `OUTPUT_PATH` - путь к выходным данным в HDFS (по умолчанию: hdfs://hadoop:8020/data/output/processed_data.parquet)
-
-### kafka_loader.py
-- `BOOTSTRAP_SERVERS` - адреса Kafka брокеров (по умолчанию: kafka:9092)
-- `KAFKA_TOPIC` - имя Kafka-темы (по умолчанию: input_topic)
-- `HDFS_URL` - URL HDFS NameNode (по умолчанию: http://hadoop:50070)
-- `HDFS_PATH` - путь в HDFS (по умолчанию: /data/input/raw_data.csv)
-
-## Управление Docker контейнерами
-
-```bash
-# Остановка всех контейнеров
-docker-compose down
-
-# Остановка с удалением томов
-docker-compose down -v
-
-# Просмотр логов
-docker-compose logs -f
-
-# Подключение к контейнеру
-docker exec -it <container_name> bash
-```
-
-## Тестирование
-
-```bash
-# Проверка данных в HDFS
-docker exec hadoop hdfs dfs -ls /data/input
-docker exec hadoop hdfs dfs -cat /data/input/raw_data.csv | head -20
-
-# Проверка результатов обработки
-docker exec hadoop hdfs dfs -ls /data/output
-docker exec hadoop hdfs dfs -cat /data/output/processed_data.parquet/part-*.parquet | head -10
-```
-
-## Решение проблем
-
-### Модуль pyspark не найден
-```bash
-# Установка в локальное окружение
-pip install pyspark
-
-# Или запуск внутри Docker контейнера
-docker exec airflow-airflow-webserver-1 pip install pyspark
-```
-
-### Airflow не находит DAG
-```bash
-docker exec airflow-airflow-webserver-1 airflow dags list
-docker exec airflow-airflow-webserver-1 airflow dags unpause spark_kafka_pipeline
-```
-
-### Spark не подключается к HDFS
-Проверьте переменную окружения `HADOOP_CORE_CONF_fs_defaultFS` в docker-compose.yml
-
-## Требования
-
-- Docker 20+
-- Docker Compose 1.29+
-- Python 3.8+ (для разработки скриптов)
-
-## Автор
-
-Белянов М.С.
-Курс: "Инструменты работы с большими данными"
+Пайплайн успешно загрузил данные из Kafka, обработал их с помощью Spark и сохранил агрегированные результаты в HDFS в формате Parquet.
