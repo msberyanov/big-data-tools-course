@@ -1,0 +1,85 @@
+$ /Users/beryanov.m.s/Documents/courses/big-data-tools-course/lab-4/scripts.sh
+[info] welcome to sbt 1.12.11 (Microsoft Java 11.0.28)
+[info] loading settings for project lab-4-build-build from metals.sbt...
+[info] loading project definition from /Users/beryanov.m.s/Documents/courses/big-data-tools-course/lab-4/project/project
+[info] loading settings for project lab-4-build from assembly.sbt, metals.sbt...
+[info] loading project definition from /Users/beryanov.m.s/Documents/courses/big-data-tools-course/lab-4/project
+[success] Generated .bloop/lab-4-build.json
+[success] Total time: 3 s, completed 7 июн. 2026 г., 9:20:28
+[info] loading settings for project lab-4 from build.sbt...
+[info] set current project to lab-4 (in build file:/Users/beryanov.m.s/Documents/courses/big-data-tools-course/lab-4/)
+[info] compiling 1 Scala source to /Users/beryanov.m.s/Documents/courses/big-data-tools-course/lab-4/target/scala-2.12/classes ...
+[info] Strategy 'discard' was applied to 436 files (Run the task at debug level to see details)
+[info] Strategy 'first' was applied to 178 files (Run the task at debug level to see details)
+[success] Total time: 78 s (0:01:18.0), completed 7 июн. 2026 г., 9:21:47
+Successfully copied 157MB to spark-master:/tmp/
+26/06/07 02:21:53 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Using Spark's default log4j profile: org/apache/spark/log4j-defaults.properties
+26/06/07 02:21:54 INFO SparkContext: Running Spark version 3.1.2
+26/06/07 02:21:54 INFO ResourceUtils: ==============================================================
+26/06/07 02:21:54 INFO ResourceUtils: No custom resources configured for spark.driver.
+26/06/07 02:21:54 INFO ResourceUtils: ==============================================================
+26/06/07 02:21:54 INFO SparkContext: Submitted application: TextClassificationDemo
+26/06/07 02:21:54 INFO ResourceProfile: Default ResourceProfile created, executor resources: Map(cores -> name: cores, amount: 1, script: , vendor: , memory -> name: memory, amount: 512, script: , vendor: , offHeap -> name: offHeap, amount: 0, script: , vendor: ), task resources: Map(cpus -> name: cpus, amount: 1.0)
+26/06/07 02:21:54 INFO ResourceProfile: Limiting resource is cpus at 1 tasks per executor
+26/06/07 02:21:54 INFO ResourceProfileManager: Added ResourceProfile id: 0
+26/06/07 02:21:54 INFO SecurityManager: Changing view acls to: root
+26/06/07 02:21:54 INFO SecurityManager: Changing modify acls to: root
+26/06/07 02:21:54 INFO SecurityManager: Changing view acls groups to:
+26/06/07 02:21:54 INFO SecurityManager: Changing modify acls groups to:
+26/06/07 02:21:54 INFO SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users  with view permissions: Set(root); groups with view permissions: Set(); users  with modify permissions: Set(root); groups with modify permissions: Set()
+26/06/07 02:21:54 INFO Utils: Successfully started service 'sparkDriver' on port 45875.
+26/06/07 02:21:54 INFO SparkEnv: Registering MapOutputTracker
+26/06/07 02:21:54 INFO SparkEnv: Registering BlockManagerMaster
+26/06/07 02:21:54 INFO BlockManagerMasterEndpoint: Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+26/06/07 02:21:54 INFO BlockManagerMasterEndpoint: BlockManagerMasterEndpoint up
+26/06/07 02:21:54 INFO SparkEnv: Registering BlockManagerMasterHeartbeat
+26/06/07 02:21:54 INFO DiskBlockManager: Created local directory at /tmp/blockmgr-62c6a362-57db-4f33-a921-c6972f91651d
+26/06/07 02:21:54 INFO MemoryStore: MemoryStore started with capacity 366.3 MiB
+26/06/07 02:21:54 INFO SparkEnv: Registering OutputCommitCoordinator
+26/06/07 02:21:55 INFO Utils: Successfully started service 'SparkUI' on port 4040.
+26/06/07 02:21:55 INFO SparkUI: Bound SparkUI to 0.0.0.0, and started at http://localhost:4040
+26/06/07 02:21:55 INFO SparkContext: Added JAR file:/tmp/lab-4.jar at spark://2fea1816e447:45875/jars/lab-4.jar with timestamp 1780798913983
+26/06/07 02:21:55 INFO StandaloneAppClient$ClientEndpoint: Connecting to master spark://spark-master:7077...
+26/06/07 02:21:55 INFO TransportClientFactory: Successfully created connection to spark-master/172.19.0.6:7077 after 39 ms (0 ms spent in bootstraps)
+26/06/07 02:21:55 INFO StandaloneSchedulerBackend: Connected to Spark cluster with app ID app-20260607022155-0000
+26/06/07 02:21:55 INFO Utils: Successfully started service 'org.apache.spark.network.netty.NettyBlockTransferService' on port 46665.
+26/06/07 02:21:55 INFO NettyBlockTransferService: Server created on 2fea1816e447:46665
+26/06/07 02:21:55 INFO BlockManager: Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+26/06/07 02:21:55 INFO BlockManagerMaster: Registering BlockManager BlockManagerId(driver, 2fea1816e447, 46665, None)
+26/06/07 02:21:55 INFO BlockManagerMasterEndpoint: Registering block manager 2fea1816e447:46665 with 366.3 MiB RAM, BlockManagerId(driver, 2fea1816e447, 46665, None)
+26/06/07 02:21:55 INFO BlockManagerMaster: Registered BlockManager BlockManagerId(driver, 2fea1816e447, 46665, None)
+26/06/07 02:21:55 INFO BlockManager: Initialized BlockManager: BlockManagerId(driver, 2fea1816e447, 46665, None)
+26/06/07 02:21:55 INFO StandaloneAppClient$ClientEndpoint: Executor added: app-20260607022155-0000/0 on worker-20260607021931-172.19.0.7-40761 (172.19.0.7:40761) with 1 core(s)
+26/06/07 02:21:56 INFO StandaloneSchedulerBackend: Granted executor ID app-20260607022155-0000/0 on hostPort 172.19.0.7:40761 with 1 core(s), 512.0 MiB RAM
+26/06/07 02:21:56 INFO StandaloneAppClient$ClientEndpoint: Executor updated: app-20260607022155-0000/0 is now RUNNING
+26/06/07 02:21:56 INFO StandaloneSchedulerBackend: SchedulerBackend is ready for scheduling beginning after reached minRegisteredResourcesRatio: 0.0
+Training Dataset:
++---+--------------------+-----+
+| id|                text|label|
++---+--------------------+-----+
+|  0|      spark is great|  1.0|
+|  1|     mlib is awesome|  1.0|
+|  2|learning spark is...|  1.0|
+|  3|  the weather is bad|  0.0|
+|  4|the rain is annoying|  0.0|
+|  5|        snow is cold|  0.0|
++---+--------------------+-----+
+
+26/06/07 02:22:11 WARN BLAS: Failed to load implementation from: com.github.fommil.netlib.NativeSystemBLAS
+26/06/07 02:22:11 WARN BLAS: Failed to load implementation from: com.github.fommil.netlib.NativeRefBLAS
+Predictions:
++------------------------+-----+----------+----------------------------------------+
+|text                    |label|prediction|probability                             |
++------------------------+-----+----------+----------------------------------------+
+|spark is cool           |1.0  |1.0       |[0.14388237674849882,0.8561176232515012]|
+|apache spark is powerful|1.0  |1.0       |[0.14388237674849882,0.8561176232515012]|
+|the storm is coming     |0.0  |0.0       |[0.580407142496285,0.419592857503715]   |
+|winter is cold          |0.0  |0.0       |[0.897059198159274,0.10294080184072596] |
++------------------------+-----+----------+----------------------------------------+
+
+Test Accuracy = 1.0
+
+What's next:
+    Try Docker Debug for seamless, persistent debugging tools in any container or image → docker debug spark-master
+    Learn more at https://docs.docker.com/go/debug-cli/
